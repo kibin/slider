@@ -1,0 +1,19 @@
+{
+  "name": "slider",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel": "^6.0.15",
+    "babel-cli": "^6.1.2",
+    "babel-preset-es2015": "^6.1.2",
+    "babel-preset-stage-2": "^6.1.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/.bin/babel src --watch --out-dir dist"
+  },
+  "author": "",
+  "license": "ISC"
+}
