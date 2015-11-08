@@ -3,7 +3,7 @@ import _ from 'lodash'
 import 'index.styl'
 
 import { images } from 'helpers/images'
-import { scale, drawImg, listen, getPageX } from 'helpers/common'
+import { scale, drawImg, listen, getLayerX } from 'helpers/common'
 
 const canvas = _.assign(document.createElement(`canvas`), {
   width: 640,
@@ -24,9 +24,9 @@ const imageNodes = images.map((src, idx) => {
     const img = _.first(evt.path);
     const imgName = `img${idx}`;
 
-    state.images.push(scale(img, context.canvas))
+    state.images.push(scale(img, context.canvas));
 
-    /*setTimeout(µ => */drawImg(context, { img, idx, ...state.images[idx] })/*, 1000 * idx)*/
+    drawImg(context, { img, idx, ...state.images[idx] });
   });
 
   image.src = src;
@@ -39,41 +39,43 @@ let dragging;
 listen(canvas, [`mousedown`, `touchstart`], evt => {
   dragging = true;
 
-  const currentX = getPageX(evt);
+  const currentX = getLayerX(evt);
 
   _.assign(state, {
     startX: currentX,
+    lastX: currentX,
   });
 })
 
 listen(canvas, [`mousemove`, `touchmove`], evt => {
   if (!dragging) return;
 
-  const currentX = getPageX(evt);
+  const currentX = getLayerX(evt);
+  const currentOffset = currentX - state.lastX;
   const { width, height } = context.canvas;
+
+  _.assign(state, {
+    lastX: currentX,
+    offset: state.offset + currentOffset,
+  });
+
+  if (state.offset >= 0 || state.offset < -(width * (state.images.length - 1))) return;
 
   context.clearRect(0, 0, width, height);
 
-  state.images.forEach((image, idx) =>
+  state.images.forEach((image, idx) => {
+    _.assign(image, {
+      x: state.images[idx].x + currentOffset
+    })
+
     drawImg(context, {
       idx,
       img: imageNodes[idx],
-      ...{
-        ...state.images[idx],
-        ...{
-          x: getPageX(evt) - (state.startX - state.images[idx].x)
-        }
-      }
+      ...image
     })
-  )
+  })
 });
 
-listen([canvas, window], [`mouseup`, `touchend`], evt => {
+listen([window, canvas], [`mouseup`, `touchend`], evt => {
   dragging = false;
-
-  if (evt.currentTarget == window) return;
-
-  state.images.forEach((image, idx) => _.assign(image, {
-    x: state.images[idx].x + getPageX(evt) - state.startX
-  }));
 });

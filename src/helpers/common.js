@@ -34,6 +34,6 @@ export function listen(observables, events, cb) {
   );
 }
 
-export function getPageX(evt) {
-  return _.get(evt, `changedTouches.0.pageX`, evt.pageX);
+export function getLayerX(evt) {
+  return _.get(evt, `changedTouches.0.layerX`, evt.layerX);
 }
