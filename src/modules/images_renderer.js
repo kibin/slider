@@ -9,11 +9,10 @@ export default function(state, canvas) {
     const image = new Image();
 
     listen(image, `load`, evt => {
-      const img = evt.path[0];
-      const imageProps = scale(img, context.canvas);
+      const imageProps = scale(image, context.canvas);
       state.images[idx] = imageProps;
 
-      drawImg(context, { img, idx, ...imageProps });
+      drawImg(context, { img: image, idx, ...imageProps });
     });
 
     image.src = src;
