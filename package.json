@@ -22,7 +22,7 @@
   },
   "repository": "https://github.com/kibin/slider",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -fr ./dist && webpack --config webpack.config.prod.js",
     "start": "node dev_server"
   },
   "author": "kibin",
