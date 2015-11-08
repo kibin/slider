@@ -2,7 +2,8 @@ import _ from 'lodash'
 
 import 'index.styl'
 
-import { imgScale, drawImage, listen, getPageX } from 'helpers/common'
+import { images } from 'helpers/images'
+import { scale, drawImg, listen, getPageX } from 'helpers/common'
 
 const canvas = _.assign(document.createElement(`canvas`), {
   width: 640,
@@ -14,41 +15,65 @@ document
   .getElementById(`content`)
   .appendChild(canvas);
 
-const state = {};
-const image = new Image();
+const state = { images: [], offset: 0 };
 
-listen(image, `load`, evt => {
-  const img = _.first(evt.path);
+const imageNodes = images.map((src, idx) => {
+  const image = new Image();
 
-  _.assign(state, {
-    img: imgScale(img, canvas)
+  listen(image, `load`, evt => {
+    const img = _.first(evt.path);
+    const imgName = `img${idx}`;
+
+    state.images.push(scale(img, context.canvas))
+
+    /*setTimeout(µ => */drawImg(context, { img, idx, ...state.images[idx] })/*, 1000 * idx)*/
   });
 
-  drawImage(context, img, state.img);
-});
+  image.src = src;
 
-image.src = `https://40.media.tumblr.com/fec4ee9dadb1f55763813c9eb0061159/tumblr_nwnhovdks21tfs2oyo1_1280.jpg`;
+  return image;
+});
 
 let dragging;
 
 listen(canvas, [`mousedown`, `touchstart`], evt => {
   dragging = true;
 
+  const currentX = getPageX(evt);
+
   _.assign(state, {
-    startX: getPageX(evt),
+    startX: currentX,
   });
 })
 
 listen(canvas, [`mousemove`, `touchmove`], evt => {
   if (!dragging) return;
 
-  drawImage(context, image, _.assign({}, state.img, {
-    x: getPageX(evt) - (state.startX - state.img.x),
-  }))
-})
+  const currentX = getPageX(evt);
+  const { width, height } = context.canvas;
 
-listen(canvas, [`mouseup`, `touchend`], evt => {
+  context.clearRect(0, 0, width, height);
+
+  state.images.forEach((image, idx) =>
+    drawImg(context, {
+      idx,
+      img: imageNodes[idx],
+      ...{
+        ...state.images[idx],
+        ...{
+          x: getPageX(evt) - (state.startX - state.images[idx].x)
+        }
+      }
+    })
+  )
+});
+
+listen([canvas, window], [`mouseup`, `touchend`], evt => {
   dragging = false;
 
-  _.assign(state.img, { x: state.img.x + getPageX(evt) - state.startX });
-})
+  if (evt.currentTarget == window) return;
+
+  state.images.forEach((image, idx) => _.assign(image, {
+    x: state.images[idx].x + getPageX(evt) - state.startX
+  }));
+});

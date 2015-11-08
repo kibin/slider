@@ -2,7 +2,7 @@ export function center(parent, child) {
   return (parent - child) / 2;
 }
 
-export function imgScale(
+export function scale(
   { width: iw, height: ih },
   { width: cw, height: ch },
 ) {
@@ -20,15 +20,18 @@ export function imgScale(
   }
 }
 
-export function drawImage(context, img, { x, y, w, h }) {
+export function drawImg(context, { idx, img, x, y, w, h }) {
   const { width, height } = context.canvas;
-  context.clearRect(0, 0, width, height);
 
-  context.drawImage(img, x, y, w, h);
+  context.drawImage(img, x + idx * width, y, w, h);
 }
 
-export function listen(observable, events, cb) {
-  [].concat(events).forEach((evt) => observable.addEventListener(evt, cb));
+export function listen(observables, events, cb) {
+  [].concat(events).forEach(evt =>
+    [].concat(observables).forEach(observable =>
+      observable.addEventListener(evt, cb)
+    )
+  );
 }
 
 export function getPageX(evt) {
