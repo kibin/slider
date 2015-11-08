@@ -22,11 +22,11 @@ const imageNodes = images.map((src, idx) => {
 
   listen(image, `load`, evt => {
     const img = _.first(evt.path);
-    const imgName = `img${idx}`;
+    const imageProps = scale(img, context.canvas);
 
-    state.images.push(scale(img, context.canvas));
+    state.images.push(imageProps);
 
-    drawImg(context, { img, idx, ...state.images[idx] });
+    drawImg(context, { img, idx, ...imageProps });
   });
 
   image.src = src;
@@ -53,26 +53,23 @@ listen(canvas, [`mousemove`, `touchmove`], evt => {
   const currentX = getLayerX(evt);
   const currentOffset = currentX - state.lastX;
   const { width, height } = context.canvas;
+  const offset = state.offset + currentOffset;
+
+  if (offset >= 0 || offset < -(width * (state.images.length - 1))) {
+    return state.lastX = currentX;
+  }
 
   _.assign(state, {
     lastX: currentX,
-    offset: state.offset + currentOffset,
+    offset
   });
-
-  if (state.offset >= 0 || state.offset < -(width * (state.images.length - 1))) return;
 
   context.clearRect(0, 0, width, height);
 
   state.images.forEach((image, idx) => {
-    _.assign(image, {
-      x: state.images[idx].x + currentOffset
-    })
+    _.assign(image, { x: state.images[idx].x + currentOffset });
 
-    drawImg(context, {
-      idx,
-      img: imageNodes[idx],
-      ...image
-    })
+    drawImg(context, { idx, img: imageNodes[idx], ...image });
   })
 });
 
