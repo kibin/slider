@@ -23,8 +23,7 @@ const imageNodes = images.map((src, idx) => {
   listen(image, `load`, evt => {
     const img = _.first(evt.path);
     const imageProps = scale(img, context.canvas);
-
-    state.images.push(imageProps);
+    state.images[idx] = imageProps;
 
     drawImg(context, { img, idx, ...imageProps });
   });
@@ -42,7 +41,6 @@ listen(canvas, [`mousedown`, `touchstart`], evt => {
   const currentX = getLayerX(evt);
 
   _.assign(state, {
-    startX: currentX,
     lastX: currentX,
   });
 })
