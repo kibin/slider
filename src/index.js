@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import 'index.styl'
 
-import { imgScale, drawImage } from 'helpers/common'
+import { imgScale, drawImage, listen, getPageX } from 'helpers/common'
 
 const canvas = _.assign(document.createElement(`canvas`), {
   width: 640,
@@ -17,7 +17,7 @@ document
 const state = {};
 const image = new Image();
 
-image.addEventListener(`load`, evt => {
+listen(image, `load`, evt => {
   const img = _.first(evt.path);
 
   _.assign(state, {
@@ -29,26 +29,26 @@ image.addEventListener(`load`, evt => {
 
 image.src = `https://40.media.tumblr.com/fec4ee9dadb1f55763813c9eb0061159/tumblr_nwnhovdks21tfs2oyo1_1280.jpg`;
 
-let mousedown;
+let dragging;
 
-canvas.addEventListener(`mousedown`, evt => {
-  mousedown = true;
+listen(canvas, [`mousedown`, `touchstart`], evt => {
+  dragging = true;
 
   _.assign(state, {
-    mouseStart: evt.pageX,
+    startX: getPageX(evt),
   });
 })
 
-canvas.addEventListener(`mousemove`, evt => {
-  if (!mousedown) return;
+listen(canvas, [`mousemove`, `touchmove`], evt => {
+  if (!dragging) return;
 
   drawImage(context, image, _.assign({}, state.img, {
-    x: evt.pageX - (state.mouseStart - state.img.x),
+    x: getPageX(evt) - (state.startX - state.img.x),
   }))
 })
 
-canvas.addEventListener(`mouseup`, evt => {
-  mousedown = false;
+listen(canvas, [`mouseup`, `touchend`], evt => {
+  dragging = false;
 
-  _.assign(state.img, { x: state.img.x + evt.pageX - state.mouseStart });
+  _.assign(state.img, { x: state.img.x + getPageX(evt) - state.startX });
 })

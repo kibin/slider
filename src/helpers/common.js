@@ -26,3 +26,11 @@ export function drawImage(context, img, { x, y, w, h }) {
 
   context.drawImage(img, x, y, w, h);
 }
+
+export function listen(observable, events, cb) {
+  [].concat(events).forEach((evt) => observable.addEventListener(evt, cb));
+}
+
+export function getPageX(evt) {
+  return _.get(evt, `changedTouches.0.pageX`, evt.pageX);
+}
