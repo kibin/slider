@@ -3,20 +3,14 @@ const autoprefixer = require(`autoprefixer`);
 const pathToFE = `${__dirname}/src`;
 
 module.exports = {
-  devtool: `eval`,
-  entry: [
-    `webpack-hot-middleware/client`,
-    `./src/index`,
-  ],
-  output: {
-    path: `${__dirname}/build)`,
-    filename: `app.js`,
-    publicPath: `/static/`,
+  entry: {
+    app: `./src/index`
   },
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
-  ],
+  output: {
+    path: `${__dirname}/dist`,
+    filename: `app.js`,
+    publicPath: `/dist/`,
+  },
   module: {
     loaders: [{
       test: /\.js$/,
