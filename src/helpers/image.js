@@ -6,8 +6,7 @@ export function scale(
   { width: iw, height: ih },
   { width: cw, height: ch },
 ) {
-  let [ws, hs] = [cw / iw, ch / ih];
-  const stretch = ws < hs ? ws : hs;
+  const stretch = Math.min(cw / iw, ch / ih, 1);
   const dims = {
     w: iw * stretch,
     h: ih * stretch,
